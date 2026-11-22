@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}AI Assistant | SRMS CET{% endblock %}
+
+{% block content %}
+<header class="section-header">
+  <h2>SRMS CET AI Assistant</h2>
+  <p>Ask for stock summaries, low-stock restock priorities, issued items, or recent audit logs.</p>
+</header>
+
+<section class="card">
+  <div id="chat-box" class="chat-box">
+    <div class="chat-msg ai-msg">
+      Ready! Ask me for a <strong>summary</strong>, <strong>low stock alerts</strong>, <strong>issued items</strong>, or <strong>recent activity</strong>.
+    </div>
+  </div>
+
+  <form id="ai-form" class="input-row" style="margin-top: 16px;">
+    <input
+      type="text"
+      id="ai-prompt"
+      placeholder="e.g., Which items need restocking or show issued items?"
+      required
+      autocomplete="off"
+    >
+    <button type="submit" class="btn-primary">Ask</button>
+  </form>
+</section>
+
+<script>
+  const aiForm = document.getElementById("ai-form");
+  const aiPrompt = document.getElementById("ai-prompt");
+  const chatBox = document.getElementById("chat-box");
+
+  function appendChat(text, role) {
+    const msg = document.createElement("div");
+    msg.className = `chat-msg ${role}-msg`;
+    msg.style.whiteSpace = "pre-line";
+    msg.style.marginBottom = "10px";
+    msg.textContent = text;
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  aiForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const prompt = aiPrompt.value.trim();
+    if (!prompt) return;
+
+    appendChat(prompt, "user");
+    aiPrompt.value = "";
+
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt })
+      });
+      const data = await res.json();
+      appendChat(data.reply || data.error || "No response.", "ai");
+    } catch (_) {
+      appendChat("Failed to reach /api/ai.", "ai");
+    }
+  });
+</script>
+{% endblock %}

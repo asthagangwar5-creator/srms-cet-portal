@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Add Supply | SRMS CET{% endblock %}
+
+{% block content %}
+<header class="section-header">
+  <h2>Add SRMS CET Supply / Equipment</h2>
+  <p>Add a single inventory item or bulk-upload rows from a CSV spreadsheet.</p>
+</header>
+
+<section class="card form-container">
+  <h3>Add Single Item</h3>
+  <form id="add-item-form">
+    <div class="input-field">
+      <label for="name">Item Name</label>
+      <input type="text" id="name" name="name" placeholder="e.g., Arduino Uno R3 Kit" required>
+    </div>
+
+    <div class="input-row">
+      <div class="input-field">
+        <label for="category">Category</label>
+        <select id="category" name="category" required>
+          <option value="Medicines">Medicines</option>
+          <option value="PPE">PPE</option>
+          <option value="Equipment">Equipment</option>
+          <option value="Fluids">Fluids</option>
+          <option value="Lab Supplies">Lab Supplies</option>
+          <option value="Safety Gear">Safety Gear</option>
+        </select>
+      </div>
+
+      <div class="input-field">
+        <label for="department">Department / Wing</label>
+        <input type="text" id="department" name="department" value="General" placeholder="e.g., CSE Lab 1 or Medical">
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div class="input-field">
+        <label for="quantity">Quantity</label>
+        <input type="number" id="quantity" name="quantity" min="0" value="10" required>
+      </div>
+
+      <div class="input-field">
+        <label for="unit">Unit</label>
+        <input type="text" id="unit" name="unit" value="Units" placeholder="e.g., Units, Pairs, Tablets" required>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-primary">Add Item</button>
+  </form>
+  <p id="add-item-status" style="margin-top: 12px;"></p>
+</section>
+
+<section class="card form-container" style="margin-top: 18px;">
+  <h3>Bulk Upload via CSV</h3>
+  <p>Expected columns: <code>name,category,quantity,unit,department</code></p>
+
+  <form id="csv-upload-form" enctype="multipart/form-data">
+    <div class="input-row" style="align-items: center; flex-wrap: wrap;">
+      <input type="file" id="csv-file-input" name="file" accept=".csv" required>
+      <button type="submit" class="btn-primary">Upload CSV</button>
+    </div>
+  </form>
+
+  <p id="csv-upload-status" style="margin-top: 12px;"></p>
+</section>
+
+<script>
+  const addItemForm = document.getElementById("add-item-form");
+  const addItemStatus = document.getElementById("add-item-status");
+
+  if (addItemForm && addItemStatus) {
+    addItemForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById("name").value.trim(),
+        category: document.getElementById("category").value,
+        department: document.getElementById("department").value.trim() || "General",
+        quantity: parseInt(document.getElementById("quantity").value, 10) || 0,
+        unit: document.getElementById("unit").value.trim() || "Units"
+      };
+
+      try {
+        const res = await fetch("/api/inventory", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          addItemStatus.textContent = `Added '${data.name}' (${data.quantity} ${data.unit}).`;
+          addItemForm.reset();
+        } else {
+          addItemStatus.textContent = data.error || "Failed to add item.";
+        }
+      } catch (_) {
+        addItemStatus.textContent = "Network error while adding item.";
+      }
+    });
+  }
+
+  const csvForm = document.getElementById("csv-upload-form");
+  const csvFileInput = document.getElementById("csv-file-input");
+  const csvStatus = document.getElementById("csv-upload-status");
+
+  if (csvForm && csvFileInput && csvStatus) {
+    csvForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const file = csvFileInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      csvStatus.textContent = "Uploading and processing CSV...";
+      try {
+        const res = await fetch("/api/inventory/upload-csv", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          csvStatus.textContent =
+            `Done! Inserted: ${data.inserted}, Updated: ${data.updated}, Skipped: ${data.skipped}.`;
+          csvForm.reset();
+        } else {
+          csvStatus.textContent = data.error || "CSV upload failed.";
+        }
+      } catch (_) {
+        csvStatus.textContent = "Network error while uploading CSV.";
+      }
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Low Stock Alerts | MediStock{% endblock %}
+
+{% block content %}
+<header class="section-header">
+  <h2>Critical Stock Alerts</h2>
+  <p>Supplies with quantity under 50 units requiring immediate restocking.</p>
+</header>
+
+<section class="card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Item Name</th>
+        <th>Category</th>
+        <th>Remaining Stock</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="alerts-table-body">
+      <!-- script.js injects low stock items here -->
+    </tbody>
+  </table>
+
+  <p id="no-alerts" class="empty-text hidden">✅ All supplies are currently above safety thresholds.</p>
+</section>
+{% endblock %}
