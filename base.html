@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SRMS CET Portal{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    :root {
+      --srms-maroon: #7a1c1c;
+      --srms-maroon-dark: #581212;
+      --srms-blue: #14366d;
+      --srms-bg: #f5f7fb;
+      --srms-card: #ffffff;
+      --srms-border: #dce2ec;
+    }
+
+    body {
+      background: var(--srms-bg);
+      color: #1c2430;
+      margin: 0;
+    }
+
+    .navbar {
+      background: linear-gradient(90deg, var(--srms-maroon-dark), var(--srms-blue));
+      color: #fff;
+      padding: 12px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .srms-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .srms-brand-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: 0.4px;
+    }
+
+    .srms-brand-sub {
+      font-size: 0.75rem;
+      opacity: 0.88;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.92rem;
+    }
+
+    .nav-links a.active,
+    .nav-links a:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .btn-primary {
+      background: var(--srms-maroon);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background: var(--srms-blue);
+    }
+
+    .srms-footer {
+      text-align: center;
+      font-size: 0.82rem;
+      color: #5a6577;
+      padding: 20px 12px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="{{ url_for('dashboard') }}" class="srms-brand">
+      <svg width="42" height="42" viewBox="0 0 48 48" role="img" aria-label="SRMS CET Emblem">
+        <path d="M24 3 L42 10 V24 C42 35.5 34.2 42.5 24 46 C13.8 42.5 6 35.5 6 24 V10 Z"
+              fill="#7a1c1c" stroke="#ffffff" stroke-width="2.2" />
+        <path d="M24 8 L37 13 V23.5 C37 31.8 31.6 37.2 24 40 C16.4 37.2 11 31.8 11 23.5 V13 Z"
+              fill="#14366d" />
+        <text x="24" y="28" text-anchor="middle" fill="#ffffff"
+              font-family="Arial, sans-serif" font-size="11" font-weight="700">SRMS</text>
+      </svg>
+      <div>
+        <div class="srms-brand-title">SRMS CET</div>
+        <div class="srms-brand-sub">Resource &amp; Inventory Hub</div>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="{{ url_for('dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+      <li><a href="{{ url_for('add_page') }}" class="{% if active_page == 'add' %}active{% endif %}">Add Supply</a></li>
+      <li><a href="{{ url_for('alerts_page') }}" class="{% if active_page == 'alerts' %}active{% endif %}">Stock Alerts</a></li>
+      <li><a href="{{ url_for('borrow_page') }}" class="{% if active_page == 'borrow' %}active{% endif %}">Borrow / Return</a></li>
+      <li><a href="{{ url_for('activity_page') }}" class="{% if active_page == 'activity' %}active{% endif %}">Activity Log</a></li>
+      <li><a href="{{ url_for('ai_page') }}" class="{% if active_page == 'ai' %}active{% endif %}">AI Assistant</a></li>
+      <li><a href="{{ url_for('logout_page') }}">Logout{% if session.get('username') %} ({{ session.get('username') }}){% endif %}</a></li>
+    </ul>
+  </nav>
+
+  <main class="page-container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="srms-footer">
+    SRMS CET Mini Project • सिद्धिर्भवति कर्मजा (Success is born out of action)
+  </footer>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
